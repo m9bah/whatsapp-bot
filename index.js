@@ -10,15 +10,13 @@ app.use(express.json());
 const {
   GREEN_API_INSTANCE,
   GREEN_API_TOKEN,
-  OPENAI_API_KEY,
+  GROQ_API_KEY,
   TARGET_GROUP_CHAT_ID,
   PORT = 3000,
 } = process.env;
 
-// ── Health check ──────────────────────────────────────────────
 app.get("/", (_req, res) => res.send("WhatsApp OCR bot is running ✅"));
 
-// ── Main webhook ──────────────────────────────────────────────
 app.post("/webhook", async (req, res) => {
   res.sendStatus(200);
 
@@ -62,27 +60,17 @@ app.post("/webhook", async (req, res) => {
     const base64Image = imageBuffer.toString("base64");
     const mimeType = imageResponse.headers.get("content-type") || "image/jpeg";
 
-    console.log(`🖼️  Image downloaded (${imageBuffer.length} bytes). Sending to OpenAI...`);
+    console.log(`🖼️  Image downloaded (${imageBuffer.length} bytes). Sending to Groq...`);
 
-    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "meta-llama/llama-4-scout-17b-16e-instruct",
         messages: [
-          {
-            role: "system",
-            content: `You are an expert OCR assistant specializing in handwritten text.
-When given an image containing handwriting:
-- Extract ALL handwritten text accurately
-- Return it as clean, well-structured plain text
-- Preserve paragraph and line breaks where meaningful
-- Fix obvious spelling mistakes, including drug names and medical terms
-- Do NOT add commentary, explanations, or labels — return only the extracted text.`,
-          },
           {
             role: "user",
             content: [
@@ -94,7 +82,12 @@ When given an image containing handwriting:
               },
               {
                 type: "text",
-                text: "Please read and extract all the handwritten text from this image.",
+                text: `You are an expert OCR assistant specializing in handwritten text.
+Extract ALL handwritten text from this image accurately.
+Return it as clean, well-structured plain text.
+Preserve paragraph and line breaks where meaningful.
+Fix obvious spelling mistakes, including drug names and medical terms.
+Do NOT add commentary, explanations, or labels — return only the extracted text.`,
               },
             ],
           },
@@ -103,18 +96,18 @@ When given an image containing handwriting:
       }),
     });
 
-    const openaiData = await openaiRes.json();
+    const groqData = await groqRes.json();
 
-    if (!openaiRes.ok) {
-      console.error("OpenAI error:", JSON.stringify(openaiData));
-      throw new Error("OpenAI API error");
+    if (!groqRes.ok) {
+      console.error("Groq error:", JSON.stringify(groqData));
+      throw new Error("Groq API error");
     }
 
-    const extractedText = openaiData?.choices?.[0]?.message?.content;
+    const extractedText = groqData?.choices?.[0]?.message?.content;
 
-    if (!extractedText) throw new Error("No text returned from OpenAI");
+    if (!extractedText) throw new Error("No text returned from Groq");
 
-    console.log(`✅ OpenAI extracted text:\n${extractedText}`);
+    console.log(`✅ Groq extracted text:\n${extractedText}`);
 
     const replyMessage = `📝 *Handwriting Extracted:*\n\n${extractedText}`;
 
