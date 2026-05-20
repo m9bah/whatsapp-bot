@@ -82,12 +82,28 @@ app.post("/webhook", async (req, res) => {
               },
               {
                 type: "text",
-                text: `You are an expert OCR assistant specializing in handwritten text.
-Extract ALL handwritten text from this image accurately.
-Return it as clean, well-structured plain text.
-Preserve paragraph and line breaks where meaningful.
-Fix obvious spelling mistakes, including drug names and medical terms.
-Do NOT add commentary, explanations, or labels — return only the extracted text.`,
+                text: `You are an expert OCR assistant specializing in handwritten medical/insurance forms.
+Extract all handwritten text from this image and organize it into this exact format:
+
+*Insurance Company:* [value]
+*Member ID:* [value]
+*National ID:* [value]
+*Date of Birth:* [dd/mm/yyyy]
+*Phone Number:* [value]
+
+*Diagnoses:*
+- [diagnosis 1]
+- [diagnosis 2]
+
+*Medications:*
+- [medication 1]
+- [medication 2]
+
+Rules:
+- Fix all spelling mistakes, especially drug names and medical terms
+- If a field is not found in the image, write: Not mentioned
+- Keep drug names in their correct international format
+- Do not add any commentary or extra text`,
               },
             ],
           },
