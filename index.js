@@ -85,7 +85,7 @@ app.post("/webhook", async (req, res) => {
                 text: `You are an expert OCR assistant specializing in handwritten medical/insurance forms.
 Extract all handwritten text from this image and organize it into this exact format:
 
-*Insurance Company:* [value]
+*Insurance Company:* [name + link from list below]
 *Member ID:* [value]
 *National ID:* [value]
 *Date of Birth:* [dd/mm/yyyy]
@@ -99,7 +99,17 @@ Extract all handwritten text from this image and organize it into this exact for
 - [medication 1]
 - [medication 2]
 
+Insurance company links — use the name and attach the correct link:
+- Euroarabins: https://medical.euroarabins.com/
+- GIG: https://medicalprovider.gig.com.jo/
+- Solidarity: https://healthmate.solidarity.com.jo/main-login
+- MedNet: https://online.mednet.com.jo/login
+- Nepco: https://healthinsurance.nepco.com.jo/login
+- Newton: https://newton-doctors.newtoninsurance.com/
+- GlobMed: https://i-carepluse.com/
+
 Rules:
+- For insurance company, write the name followed by the link on the same line
 - Fix all spelling mistakes, especially drug names and medical terms
 - If a field is not found in the image, write: Not mentioned
 - Keep drug names in their correct international format
