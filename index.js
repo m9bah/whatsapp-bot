@@ -89,6 +89,7 @@ Extract all handwritten text from this image and organize it into this exact for
 *Member ID:* [value]
 *National ID:* [value]
 *Date of Birth:* [dd/mm/yyyy]
+*Always format dates as dd/mm/yyyy using slashes, never dashes
 *Phone Number:* [value]
 
 *Diagnoses:*
